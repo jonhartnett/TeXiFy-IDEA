@@ -21,6 +21,7 @@ class TexifySettings : PersistentStateComponent<TexifySettings> {
 
     var automaticSoftWraps = false
     var automaticSecondInlineMathSymbol = true
+    var texFlavor = TexFlavor.MikTex
 
     override fun getState() = this
 

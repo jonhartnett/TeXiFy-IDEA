@@ -3,6 +3,8 @@ package nl.rubensten.texifyidea.run.compiler
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import nl.rubensten.texifyidea.run.BibtexRunConfiguration
+import nl.rubensten.texifyidea.settings.TexFlavor
+import nl.rubensten.texifyidea.settings.TexifySettings
 
 /**
  * @author Sten Wessel
@@ -23,8 +25,12 @@ internal object BibtexCompiler : Compiler<BibtexRunConfiguration> {
             }
             else add(executableName)
 
-            add("-include-directory=${runConfig.mainFile?.parent?.path ?: ""}")
-            addAll(moduleRoots.map { "-include-directory=${it.path}" })
+            val settings = TexifySettings.getInstance()
+
+            if(settings.texFlavor == TexFlavor.MikTex){
+                add("-include-directory=${runConfig.mainFile?.parent?.path ?: ""}")
+                addAll(moduleRoots.map { "-include-directory=${it.path}" })
+            }
 
             runConfig.compilerArguments?.let { addAll(it.split("""\s+""".toRegex())) }
 

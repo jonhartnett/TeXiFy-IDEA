@@ -2,21 +2,17 @@ package nl.rubensten.texifyidea.run;
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileTypeDescriptor;
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.ui.ComboBox;
-import com.intellij.openapi.ui.ComponentWithBrowseButton;
-import com.intellij.openapi.ui.LabeledComponent;
-import com.intellij.openapi.ui.TextBrowseFolderListener;
-import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.openapi.ui.VerticalFlowLayout;
+import com.intellij.openapi.ui.*;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.ui.SeparatorComponent;
 import com.intellij.ui.TitledSeparator;
 import nl.rubensten.texifyidea.run.LatexCompiler.Format;
+import nl.rubensten.texifyidea.settings.TexFlavor;
+import nl.rubensten.texifyidea.settings.TexifySettings;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -63,6 +59,7 @@ public class LatexSettingsEditor extends SettingsEditor<LatexRunConfiguration> {
         txtFile.setText(path);
 
         // Reset seperate auxiliary files.
+        auxDir.setEnabled(TexifySettings.getInstance().getTexFlavor() == TexFlavor.MikTex);
         auxDir.setSelected(runConfiguration.hasAuxiliaryDirectories());
 
         // Reset output format.
@@ -76,8 +73,7 @@ public class LatexSettingsEditor extends SettingsEditor<LatexRunConfiguration> {
     }
 
     @Override
-    protected void applyEditorTo(@NotNull LatexRunConfiguration runConfiguration) throws
-            ConfigurationException {
+    protected void applyEditorTo(@NotNull LatexRunConfiguration runConfiguration) {
         // Apply chosen compiler.
         LatexCompiler chosenCompiler = (LatexCompiler)compiler.getComponent().getSelectedItem();
         runConfiguration.setCompiler(chosenCompiler);

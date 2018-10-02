@@ -13,6 +13,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import nl.rubensten.texifyidea.TeXception
 import nl.rubensten.texifyidea.psi.LatexEnvironment
+import nl.rubensten.texifyidea.settings.TexFlavor
+import nl.rubensten.texifyidea.settings.TexifySettings
 import nl.rubensten.texifyidea.util.*
 import org.jetbrains.concurrency.runAsync
 import java.io.File
@@ -25,7 +27,9 @@ open class LatexCommandLineState(environment: ExecutionEnvironment, private val 
     @Throws(ExecutionException::class)
     override fun startProcess(): ProcessHandler {
         val compiler = runConfig.compiler ?: throw ExecutionException("No valid compiler specified.")
+        val rootManager = ProjectRootManager.getInstance(environment.project)
         val mainFile = runConfig.mainFile ?: throw ExecutionException("Main file is not specified.")
+        val moduleRoots = rootManager.contentSourceRoots
         val command: List<String> = compiler.getCommand(runConfig, environment.project)
                 ?: throw ExecutionException("Compile command could not be created.")
 
@@ -33,6 +37,17 @@ open class LatexCommandLineState(environment: ExecutionEnvironment, private val 
 
         val commandLine = GeneralCommandLine(command).withWorkDirectory(mainFile.parent.path)
         val handler: ProcessHandler = KillableProcessHandler(commandLine)
+
+        val settings = TexifySettings.getInstance()
+
+        if(settings.texFlavor == TexFlavor.TexLive){
+            val inputs = moduleRoots.joinToString(":") { it.path } + ":"
+
+            commandLine.environment["TEXINPUTS"] = inputs
+
+            if(compiler == LatexCompiler.LATEXMK)
+                commandLine.environment["BIBINPUTS"] = inputs
+        }
 
         // Reports exit code to run output window when command is terminated
         ProcessTerminatedListener.attach(handler, environment.project)
