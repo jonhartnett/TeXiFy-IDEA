@@ -84,7 +84,9 @@ open class PsiContainer(val start: PsiElement, val end: PsiElement) : PsiElement
         return list.toTypedArray()
     }
 
+    @Suppress("OverridingDeprecatedMember")
     override fun checkAdd(element: PsiElement) = iterateElements {
+        @Suppress("DEPRECATION")
         it.checkAdd(element)
     }
 
@@ -124,7 +126,9 @@ open class PsiContainer(val start: PsiElement, val end: PsiElement) : PsiElement
 
     override fun getOriginalElement(): PsiElement? = start.originalElement
 
+    @Suppress("OverridingDeprecatedMember")
     override fun checkDelete() = iterateElements {
+        @Suppress("DEPRECATION")
         it.checkDelete()
     }
 
